@@ -3,6 +3,8 @@ from pygame import font
 from pygame.locals import *
 import pygame
 import random as rd
+import ai
+
 
 WINDOW = {
     "WIDTH": 400,
@@ -40,8 +42,11 @@ BLOCK = {
 
 class Grid:
 
-    def __init__(self):
-        self.data = [[0 for j in range(4)] for i in range(4)]
+    def __init__(self, data=None):
+        if data:
+            self.data = data
+        else:
+            self.data = [[0 for j in range(4)] for i in range(4)]
 
     def gen_next(self):
         vacancy = []
@@ -54,6 +59,33 @@ class Grid:
         i, j = rd.sample(vacancy, 1)[0]
         self.data[i][j] = 1
         return True
+
+    def clone(self):
+        new_data = [[0 for j in range(4)] for i in range(4)]
+        for i in range(4):
+            for j in range(4):
+                new_data[i][j] = self.data[i][j]
+        return Grid(new_data)
+
+    def get_up_grid(self):
+        new_grid = self.clone()
+        new_grid.up()
+        return new_grid
+
+    def get_down_grid(self):
+        new_grid = self.clone()
+        new_grid.down()
+        return new_grid
+
+    def get_left_grid(self):
+        new_grid = self.clone()
+        new_grid.left()
+        return new_grid
+
+    def get_right_grid(self):
+        new_grid = self.clone()
+        new_grid.right()
+        return new_grid
 
     def up(self):
         for col in range(4):
@@ -171,6 +203,8 @@ if __name__ == '__main__':
     grid = Grid()
     grid.gen_next()
 
+    AI = ai.Minimax(3)
+
     # main loop
     while True:
 
@@ -181,16 +215,26 @@ if __name__ == '__main__':
             if event.type == QUIT:
                 exit()
             if event.type == KEYDOWN:
-                if event.key == K_UP:
-                    grid.up()
-                elif event.key == K_DOWN:
-                    grid.down()
-                elif event.key == K_LEFT:
-                    grid.left()
-                elif event.key == K_RIGHT:
-                    grid.right()
-                else:
-                    break
+                # if event.key == K_UP:
+                #     grid.up()
+                # elif event.key == K_DOWN:
+                #     grid.down()
+                # elif event.key == K_LEFT:
+                #     grid.left()
+                # elif event.key == K_RIGHT:
+                #     grid.right()
+                # else:
+                #     break
+                if event.key == K_SPACE:
+                    dec = AI.decision(grid)
+                    if dec == 0:
+                        grid.up()
+                    elif dec == 1:
+                        grid.down()
+                    elif dec == 2:
+                        grid.left()
+                    elif dec == 3:
+                        grid.right()
                 if not grid.gen_next():
                     exit()
 
